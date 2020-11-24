@@ -107,62 +107,16 @@ public class Table implements TableGetters, TableUtil {
     @Override
     public void insertInto(List<String> rowNames, List<Object> values) {
 
-        StringBuilder builder = new StringBuilder();
-
-        rowNames.forEach(row -> {
-
-            builder.append(row).append(",");
-
-        });
-
-        StringBuilder builder1 = new StringBuilder();
-
-        values.forEach(value -> {
-
-            builder1.append(value).append(",");
-
-        });
-
-        String rows;
-        String valuez;
-
-        int index = builder.toString().lastIndexOf(",");
-        int index1 = builder1.toString().lastIndexOf(",");
-
-        builder.setCharAt(index, Character.MIN_VALUE);
-        builder1.setCharAt(index1, Character.MIN_VALUE);
-
-        rows = builder.toString();
-        valuez = builder1.toString();
-
-        int length = valuez.split(",").length;
-
-        String marks;
-
-        StringBuilder marksBuilder = new StringBuilder();
-
-        for(int i = 0; i < length; i++){
-
-            marksBuilder.append("?,");
-
-        }
-
-        int index2 = marksBuilder.toString().lastIndexOf(",");
-
-        marksBuilder.setCharAt(index2, Character.MIN_VALUE);
-
-        marks = marksBuilder.toString();
-
         try{
 
             preparedStatement = handler.getConnection().prepareStatement(
-                    "INSERT INTO " + tableName + " (" + rows.trim() + ") VALUES (" + marks.trim() + ")"
+                    "INSERT INTO " + tableName + " (" + formatRows(rowNames).trim() + ") VALUES (" + formatMarks(values) + ")"
             );
 
-            for(int i = 0; i < length; i++){
+            for(int i = 0; i < values.size(); i++){
 
-                Object object = valuez.split(",")[i];
-                
+                Object object = values.get(i);
+
                 preparedStatement.setObject(i + 1, object);
 
             }
@@ -182,17 +136,13 @@ public class Table implements TableGetters, TableUtil {
 
         StringBuilder builder = new StringBuilder();
 
-        types.forEach(dataType -> {
+        types.forEach(dataType -> rowNames.forEach(name -> {
 
-            rowNames.forEach(name -> {
+            String sqlType = dataType.getSqlType();
 
-                String sqlType = dataType.getSqlType();
+            builder.append(name).append(" ").append(sqlType).append(" (100)");
 
-                builder.append(name).append(" ").append(sqlType).append(" (100)");
-
-            });
-
-        });
+        }));
 
         String rows = builder.toString();
 
@@ -211,6 +161,52 @@ public class Table implements TableGetters, TableUtil {
             exception.printStackTrace();
 
         }
+
+    }
+
+    private String formatRows(List<String> raw){
+
+        StringBuilder builder = new StringBuilder();
+
+        raw.forEach(rawValue -> builder.append(rawValue).append(","));
+
+        int index = builder.toString().lastIndexOf(",");
+
+        builder.setCharAt(index, Character.MIN_VALUE);
+
+        return builder.toString().trim();
+
+    }
+
+    private String formatMarks(List<Object> raw){
+
+        StringBuilder builder = new StringBuilder();
+
+        raw.forEach(value -> builder.append(value).append(","));
+
+        int index = builder.toString().lastIndexOf(",");
+
+        builder.setCharAt(index, Character.MIN_VALUE);
+
+        String values = builder.toString();
+
+        int length = values.split(",").length;
+
+        StringBuilder marksBuilder = new StringBuilder();
+
+        for(int i = 0; i < length; i++){
+
+            marksBuilder.append("?,");
+
+        }
+
+        int index2 = marksBuilder.toString().lastIndexOf(",");
+//
+        marksBuilder.setCharAt(index2, Character.MIN_VALUE);
+
+        String marks = marksBuilder.toString();
+
+        return marks.trim();
 
     }
 
