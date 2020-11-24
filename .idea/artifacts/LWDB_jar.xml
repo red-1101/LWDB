@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="LWDB:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/LWDB_jar</output-path>
+    <root id="archive" name="LWDB.jar">
+      <element id="module-output" name="LWDB" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../../../Program Files/JavaLibs/mysql-connector-java-8.0.22/mysql-connector-java-8.0.22.jar" path-in-jar="/" />
+      <element id="library" level="project" name="mysql-connector-java-8.0.22" />
+    </root>
+  </artifact>
+</component>
