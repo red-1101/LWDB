@@ -1,6 +1,7 @@
 package re.red;
 
 import re.red.connectors.ConnectionHandler;
+import re.red.exceptions.TableNotFoundException;
 import re.red.manager.table.Table;
 
 public class LWDB {
@@ -13,7 +14,7 @@ public class LWDB {
 
     }
 
-    public Table getTable(String tableName){
+    public Table getTable(String tableName) throws TableNotFoundException {
 
         return new Table(handler, tableName);
 
