@@ -23,24 +23,34 @@ public class ConnectionHandler {
 
     public ConnectionHandler(@NotNull Databases type, @NotNull String host, @Nullable String port, @Nullable String databaseName, @Nullable String user, @Nullable String password) throws SQLException {
 
-        if(isConnected()) throw new SQLException();
+        if(isConnected()) throw new SQLException("Already connected to the database!");
 
-        switch (type){
+        switch (type) {
 
             case MYSQL:
                 connectionUrl = "jdbc:mysql://" + host + ":" + port + "/" + databaseName;
                 break;
 
-            case SQLITE:
-                connectionUrl = "jdbc:sqlite:" + host;
-                break;
-
 
         }
 
-        System.out.println(connectionUrl);
-
         connection = DriverManager.getConnection(connectionUrl, user, password);
+
+    }
+
+    public ConnectionHandler(Databases type, String databasePath) throws SQLException {
+
+        if(isConnected()) throw new SQLException("Already connected to the database!");
+
+        switch (type){
+
+            case SQLITE:
+                connectionUrl = "jdbc:sqlite:" + databasePath;
+                break;
+
+        }
+
+        connection = DriverManager.getConnection(connectionUrl);
 
     }
 
