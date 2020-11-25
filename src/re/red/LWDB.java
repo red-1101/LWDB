@@ -13,11 +13,24 @@ public class LWDB {
 
     private final ConnectionHandler handler;
 
+    /**
+     *
+     * @param handler This is a required argument in order to make everything work.
+     */
+
     public LWDB(ConnectionHandler handler){
 
         this.handler = handler;
 
     }
+
+    /**
+     *
+     * @param tableName The name of the table that is going to be created.
+     * @param rowNames The names of the specific rows.
+     * @param types The types of the rows.
+     * @param sizes The sizes of the rows.
+     */
 
     public void createTable(String tableName, List<String> rowNames, List<DataType> types, List<Integer> sizes){
 
@@ -52,6 +65,13 @@ public class LWDB {
         }
 
     }
+
+    /***
+     *
+     * @param tableName The name of the table you want to get.
+     * @return A new instance of the Table class.
+     * @throws TableNotFoundException Thrown when the table is not found.
+     */
 
     public Table getTable(String tableName) throws TableNotFoundException {
 
