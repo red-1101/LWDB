@@ -1,14 +1,13 @@
 package re.red.manager.table;
 
 import re.red.connectors.ConnectionHandler;
-import re.red.datatypes.DataType;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-public class Table implements TableGetters, TableUtil {
+public final class Table implements TableGetters, TableUtil {
 
     private final ConnectionHandler handler;
     private final String tableName;
@@ -110,7 +109,7 @@ public class Table implements TableGetters, TableUtil {
         try{
 
             preparedStatement = handler.getConnection().prepareStatement(
-                    "INSERT INTO " + tableName + " (" + formatRows(rowNames).trim() + ") VALUES (" + formatMarks(values) + ")"
+                    "INSERT INTO " + tableName + " (" + formatRows(rowNames) + ") VALUES (" + formatMarks(values) + ")"
             );
 
             for(int i = 0; i < values.size(); i++){
@@ -122,39 +121,6 @@ public class Table implements TableGetters, TableUtil {
             }
 
             preparedStatement.executeUpdate();
-
-        } catch (SQLException exception) {
-
-            exception.printStackTrace();
-
-        }
-
-    }
-
-    @Override
-    public void createTable(List<String> rowNames, List<DataType> types) {
-
-        StringBuilder builder = new StringBuilder();
-
-        types.forEach(dataType -> rowNames.forEach(name -> {
-
-            String sqlType = dataType.getSqlType();
-
-            builder.append(name).append(" ").append(sqlType).append(" (100)");
-
-        }));
-
-        String rows = builder.toString();
-
-        try{
-
-            preparedStatement = handler.getConnection().prepareStatement(
-                    "CREATE TABLE IF NOT EXISTS " + tableName + "("+ rows +")"
-            );
-
-            preparedStatement.executeUpdate();
-
-            preparedStatement.clearParameters();
 
         } catch (SQLException exception) {
 
@@ -201,7 +167,7 @@ public class Table implements TableGetters, TableUtil {
         }
 
         int index2 = marksBuilder.toString().lastIndexOf(",");
-//
+
         marksBuilder.setCharAt(index2, Character.MIN_VALUE);
 
         String marks = marksBuilder.toString();
@@ -209,5 +175,6 @@ public class Table implements TableGetters, TableUtil {
         return marks.trim();
 
     }
+
 
 }
