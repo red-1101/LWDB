@@ -1,7 +1,11 @@
 package re.red.manager.table;
 
 import re.red.connectors.ConnectionHandler;
+import re.red.exceptions.LWDBException;
+import re.red.exceptions.NotConnectedException;
+import re.red.exceptions.TableNotFoundException;
 
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,7 +18,7 @@ public final class Table implements TableGetters, TableUtil {
 
     private PreparedStatement preparedStatement;
 
-    public Table(ConnectionHandler handler, String tableName){
+    public Table(ConnectionHandler handler, String tableName) {
 
         this.handler = handler;
         this.tableName = tableName;
@@ -22,58 +26,60 @@ public final class Table implements TableGetters, TableUtil {
     }
 
     @Override
-    public String getStringValue(String selection, String whereCheck, String whereTo) {
+    public String getStringValue(String selection, String whereCheck, String whereTo) throws LWDBException, SQLException {
 
         return (String) get(selection, whereCheck, whereTo);
 
     }
 
     @Override
-    public int getIntValue(String selection, String whereCheck, String whereTo) {
+    public int getIntValue(String selection, String whereCheck, String whereTo) throws LWDBException, SQLException {
 
         return (Integer) get(selection, whereCheck, whereTo);
 
     }
 
     @Override
-    public double getDoubleValue(String selection, String whereCheck, String whereTo) {
+    public double getDoubleValue(String selection, String whereCheck, String whereTo) throws LWDBException, SQLException {
 
         return (Double) get(selection, whereCheck, whereTo);
 
     }
 
     @Override
-    public float getFloatValue(String selection, String whereCheck, String whereTo) {
+    public float getFloatValue(String selection, String whereCheck, String whereTo) throws LWDBException, SQLException {
 
         return (Float) get(selection, whereCheck, whereTo);
 
     }
 
     @Override
-    public byte getByteValue(String selection, String whereCheck, String whereTo) {
+    public byte getByteValue(String selection, String whereCheck, String whereTo) throws LWDBException, SQLException {
 
         return (Byte) get(selection, whereCheck, whereTo);
 
     }
 
     @Override
-    public short getShortValue(String selection, String whereCheck, String whereTo) {
+    public short getShortValue(String selection, String whereCheck, String whereTo) throws LWDBException, SQLException {
 
         return (Short) get(selection, whereCheck, whereTo);
 
     }
 
     @Override
-    public long getLongValue(String selection, String whereCheck, String whereTo) {
+    public long getLongValue(String selection, String whereCheck, String whereTo) throws LWDBException, SQLException {
 
         return (Long) get(selection, whereCheck, whereTo);
 
     }
 
     @Override
-    public Object get(String selection, String whereCheck, String whereTo) {
+    public Object get(String selection, String whereCheck, String whereTo) throws LWDBException, SQLException {
 
-        try{
+        if (!handler.isConnected()) throw new NotConnectedException("You must be connected to the Database!");
+
+        try {
 
             preparedStatement = handler.getConnection().prepareStatement(
                     "SELECT " + selection + " FROM " + tableName + " WHERE " + whereCheck + "=?"
@@ -83,7 +89,7 @@ public final class Table implements TableGetters, TableUtil {
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            if(resultSet.next()){
+            if (resultSet.next()) {
 
                 preparedStatement.clearParameters();
 
@@ -95,7 +101,7 @@ public final class Table implements TableGetters, TableUtil {
 
         } catch (SQLException exception) {
 
-            exception.printStackTrace();
+            throw new TableNotFoundException("The table " + tableName + " could not be found!");
 
         }
 
@@ -104,15 +110,15 @@ public final class Table implements TableGetters, TableUtil {
     }
 
     @Override
-    public void insertInto(List<String> rowNames, List<Object> values) {
+    public void insertInto(List<String> rowNames, List<Object> values) throws TableNotFoundException {
 
-        try{
+        try {
 
             preparedStatement = handler.getConnection().prepareStatement(
                     "INSERT INTO " + tableName + " (" + formatRows(rowNames) + ") VALUES (" + formatMarks(values) + ")"
             );
 
-            for(int i = 0; i < values.size(); i++){
+            for (int i = 0; i < values.size(); i++) {
 
                 Object object = values.get(i);
 
@@ -124,18 +130,16 @@ public final class Table implements TableGetters, TableUtil {
 
         } catch (SQLException exception) {
 
-            exception.printStackTrace();
+            throw new TableNotFoundException("The table " + tableName + " could not be found!");
 
         }
 
     }
 
     @Override
-    public void update(List<String> column, List<Object> values, String whereCheck, String whereTo) {
+    public void update(List<String> column, List<Object> values, String whereCheck, String whereTo) throws TableNotFoundException {
 
-        System.out.println(updateFormat(column, values));
-
-        try{
+        try {
 
             preparedStatement = handler.getConnection().prepareStatement(
                     "UPDATE " + tableName + " SET " + updateFormat(column, values) + " WHERE " + whereCheck + "=?"
@@ -145,15 +149,36 @@ public final class Table implements TableGetters, TableUtil {
 
             preparedStatement.executeUpdate();
 
-        }catch (SQLException exception){
+        } catch (SQLException exception) {
 
-            exception.printStackTrace();
+            throw new TableNotFoundException("The table " + tableName + " could not be found!");
 
         }
 
     }
 
-    private String formatRows(List<String> raw){
+    @Override
+    public boolean exists() {
+
+        try {
+
+            DatabaseMetaData data = handler.getConnection().getMetaData();
+
+            ResultSet resultSet = data.getTables(null, null, tableName, new String[]{"TABLE"});
+
+            return resultSet.next();
+
+        } catch (SQLException exception) {
+
+            exception.printStackTrace();
+
+        }
+
+        return false;
+
+    }
+
+    private String formatRows(List<String> raw) {
 
         StringBuilder builder = new StringBuilder();
 
@@ -167,7 +192,7 @@ public final class Table implements TableGetters, TableUtil {
 
     }
 
-    private String formatMarks(List<Object> raw){
+    private String formatMarks(List<Object> raw) {
 
         StringBuilder builder = new StringBuilder();
 
@@ -183,7 +208,7 @@ public final class Table implements TableGetters, TableUtil {
 
         StringBuilder marksBuilder = new StringBuilder();
 
-        for(int i = 0; i < length; i++){
+        for (int i = 0; i < length; i++) {
 
             marksBuilder.append("?,");
 
@@ -199,13 +224,13 @@ public final class Table implements TableGetters, TableUtil {
 
     }
 
-    private String updateFormat(List<String> list, List<Object> objectList){
+    private String updateFormat(List<String> list, List<Object> objectList) {
 
         StringBuilder builder = new StringBuilder();
 
-        for(int i = 0; i < list.size(); i++){
+        for (int i = 0; i < list.size(); i++) {
 
-            if(objectList.get(i) instanceof String) {
+            if (!(objectList.get(i) instanceof Number)) {
 
                 builder.append(list.get(i)).append("=").append("'").append(objectList.get(i)).append("'").append(",");
 
