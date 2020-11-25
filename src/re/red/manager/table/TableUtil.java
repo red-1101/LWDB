@@ -12,4 +12,12 @@ public interface TableUtil {
 
     void insertInto(List<String> rowNames, List<Object> values);
 
+    /***
+     *
+     * @param column The column that will be updated.
+     * @param values The value that is going to be updated to.
+     */
+
+    void update(List<String> column, List<Object> values, String whereCheck, String whereTo);
+
 }
