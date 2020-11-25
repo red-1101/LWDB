@@ -130,6 +130,29 @@ public final class Table implements TableGetters, TableUtil {
 
     }
 
+    @Override
+    public void update(List<String> column, List<Object> values, String whereCheck, String whereTo) {
+
+        System.out.println(updateFormat(column, values));
+
+        try{
+
+            preparedStatement = handler.getConnection().prepareStatement(
+                    "UPDATE " + tableName + " SET " + updateFormat(column, values) + " WHERE " + whereCheck + "=?"
+            );
+
+            preparedStatement.setString(1, whereTo);
+
+            preparedStatement.executeUpdate();
+
+        }catch (SQLException exception){
+
+            exception.printStackTrace();
+
+        }
+
+    }
+
     private String formatRows(List<String> raw){
 
         StringBuilder builder = new StringBuilder();
@@ -173,6 +196,34 @@ public final class Table implements TableGetters, TableUtil {
         String marks = marksBuilder.toString();
 
         return marks.trim();
+
+    }
+
+    private String updateFormat(List<String> list, List<Object> objectList){
+
+        StringBuilder builder = new StringBuilder();
+
+        for(int i = 0; i < list.size(); i++){
+
+            if(objectList.get(i) instanceof String) {
+
+                builder.append(list.get(i)).append("=").append("'").append(objectList.get(i)).append("'").append(",");
+
+                continue;
+
+            }
+
+            builder.append(list.get(i)).append("=").append(objectList.get(i)).append(",");
+
+        }
+
+        int index = builder.toString().lastIndexOf(",");
+
+        builder.setCharAt(index, Character.MIN_VALUE);
+
+        String query = builder.toString();
+
+        return query.trim();
 
     }
 
