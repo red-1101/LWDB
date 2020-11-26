@@ -5,6 +5,7 @@
       <element id="module-output" name="LWDB" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../../../../Program Files/JavaLibs/mysql-connector-java-8.0.22/mysql-connector-java-8.0.22.jar" path-in-jar="/" />
       <element id="library" level="project" name="mysql-connector-java-8.0.22" />
+      <element id="library" level="project" name="sqlite-jdbc-3.32.3.2" />
     </root>
   </artifact>
 </component>
