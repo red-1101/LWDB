@@ -48,8 +48,6 @@ public class LWDB {
 
         String query = builder.toString().trim();
 
-        System.out.println(query);
-
         try{
 
             PreparedStatement preparedStatement = handler.getConnection().prepareStatement(
@@ -78,7 +76,6 @@ public class LWDB {
         return new Table(handler, tableName);
 
     }
-
 
 
 }
