@@ -13,6 +13,8 @@ public class ConnectionHandler {
 
     private Connection connection;
 
+    private Databases type;
+
     /***
      *
      * @param type The type of the database your are using. MYSQL / SQLITE
@@ -26,6 +28,8 @@ public class ConnectionHandler {
     public ConnectionHandler(@NotNull Databases type, @NotNull String host, @Nullable String port, @Nullable String databaseName, @Nullable String user, @Nullable String password) throws SQLException {
 
         if(isConnected()) throw new SQLException("Already connected to the database!");
+
+        this.type = type;
 
         switch (type) {
 
@@ -83,6 +87,12 @@ public class ConnectionHandler {
         if(connection == null) return false;
 
         return !connection.isClosed();
+
+    }
+
+    public Databases getType(){
+
+        return type;
 
     }
 
