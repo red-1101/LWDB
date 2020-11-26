@@ -1,9 +1,11 @@
 package re.red.manager.table;
 
 import re.red.connectors.ConnectionHandler;
+import re.red.connectors.Databases;
 import re.red.exceptions.LWDBException;
 import re.red.exceptions.NotConnectedException;
 import re.red.exceptions.TableNotFoundException;
+import re.red.util.Debugger;
 
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -16,12 +18,22 @@ public final class Table implements TableGetters, TableUtil {
     private final ConnectionHandler handler;
     private final String tableName;
 
+    private final Debugger debugger;
+    private final String SUCCESSFUL_OPERATION;
+
+    private Databases type;
     private PreparedStatement preparedStatement;
+
 
     public Table(ConnectionHandler handler, String tableName) {
 
         this.handler = handler;
         this.tableName = tableName;
+        this.type = handler.getType();
+
+        this.debugger = new Debugger(true);
+
+        this.SUCCESSFUL_OPERATION = "Query executed successfully!";
 
     }
 
@@ -99,6 +111,8 @@ public final class Table implements TableGetters, TableUtil {
 
             preparedStatement.clearParameters();
 
+            debugger.debug(SUCCESSFUL_OPERATION);
+
         } catch (SQLException exception) {
 
             throw new TableNotFoundException("The table " + tableName + " could not be found!");
@@ -128,6 +142,8 @@ public final class Table implements TableGetters, TableUtil {
 
             preparedStatement.executeUpdate();
 
+            debugger.debug(SUCCESSFUL_OPERATION);
+
         } catch (SQLException exception) {
 
             throw new TableNotFoundException("The table " + tableName + " could not be found!");
@@ -149,9 +165,76 @@ public final class Table implements TableGetters, TableUtil {
 
             preparedStatement.executeUpdate();
 
+            debugger.debug(SUCCESSFUL_OPERATION);
+
         } catch (SQLException exception) {
 
             throw new TableNotFoundException("The table " + tableName + " could not be found!");
+
+        }
+
+    }
+
+    @Override
+    public void delete(String whereCheck, String whereTo) {
+
+        try {
+
+            preparedStatement = handler.getConnection().prepareStatement(
+                    "DELETE FROM " + tableName + " WHERE " + whereCheck + "=?"
+            );
+
+            preparedStatement.setString(1, whereTo);
+
+            preparedStatement.executeUpdate();
+
+            debugger.debug(SUCCESSFUL_OPERATION);
+
+        }catch (SQLException exception){
+
+            exception.printStackTrace();
+
+        }
+
+    }
+
+    @Override
+    public void drop() {
+
+        try{
+
+            preparedStatement = handler.getConnection().prepareStatement(
+                    "DROP TABLE " + tableName
+            );
+
+            preparedStatement.executeUpdate();
+
+            debugger.debug(SUCCESSFUL_OPERATION);
+
+        }catch (SQLException exception){
+
+            exception.printStackTrace();
+
+        }
+
+    }
+
+    @Override
+    public void truncate() {
+
+        try{
+
+            preparedStatement = handler.getConnection().prepareStatement(
+                    "TRUNCATE TABLE " + tableName
+            );
+
+            preparedStatement.executeUpdate();
+
+            debugger.debug(SUCCESSFUL_OPERATION);
+
+        }catch (SQLException exception){
+
+            exception.printStackTrace();
 
         }
 
