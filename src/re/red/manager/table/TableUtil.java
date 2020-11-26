@@ -24,6 +24,23 @@ public interface TableUtil {
     void update(List<String> column, List<Object> values, String whereCheck, String whereTo) throws TableNotFoundException;
 
     /***
+     * Deletes a row from the table.
+     */
+    void delete(String whereCheck, String whereTo);
+
+    /***
+     *
+     * Drops the table.
+     */
+    void drop();
+
+    /***
+     *
+     * Truncates the table.
+     */
+    void truncate();
+
+    /***
      *
      * @return Returns whether the table exists in the database.
      */
