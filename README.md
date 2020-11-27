@@ -32,4 +32,6 @@ String tableName = "account";
 lwdb.createTable(tableName, columns, types, sizes);
 ```
 This is what the table will look like:
+
+
 ![alt-text](https://i.imgur.com/sipAUgW.png "")
