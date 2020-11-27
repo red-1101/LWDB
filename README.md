@@ -35,3 +35,23 @@ This is what the table will look like:
 
 
 ![alt-text](https://i.imgur.com/sipAUgW.png "")
+
+Inserting values into a table
+=============================
+```java
+List<String> columns = new ArrayList();
+columns.add("name");
+columns.add("id");
+
+List<Object> values = new ArrayList();
+values.add("Red");
+values.add(1);
+
+lwdb.getTable("account").insertInto(columns, values);
+```
+This is what the table will look like:
+
+
+![alt-text](https://i.imgur.com/EEg9RJ6.png, "")
+
+
